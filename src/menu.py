@@ -1,26 +1,30 @@
 import sys, os, subprocess
 
 #####################
-####### NOTES #######
-#####################
-
-# subprocess.Popen non-blocking
-# subprocess.call  blocking
-
-#####################
 ##### VARIABLES #####
 #####################
 
 mainMenus=["Main", "Settings", "Exit"]
 
 class Font:
-    isRegular=True
-    isBlink=False
-    isInvert=False
-    isBold=False
-    isItalic=False
-    isLine=False
-    isUnderline=False
+    REGULAR   = '0'
+    BOLD      = '1'
+    ITALIC    = '3'
+    UNDERLINE = '4'
+    BLINK     = '5'
+    INVERT    = '7'
+    
+class FgColor:
+    black   = ";30m"
+    red     = ";31m"
+    green   = ";32m"
+    yellow  = ";33m"
+    blue    = ";34m"
+    magenta = ";35m"
+    cyan    = ";36m"
+    white   = ";37m"
+    unknown = ";38m"
+    default = ";39m"
 
 class BgColor:
     black   ="\033[40m"
@@ -35,63 +39,10 @@ class BgColor:
     default ="\033[49m"
     reset   ="\033[49m"
 
-class Tx:
-    current="\033[0;39m"
-    
-    reset   ="\033[0m"
-    bold    ="\033[1m"
-    underline ="\033[4m"
-    blink   ="\033[5m"
-    invert  ="\033[7m"
-    
-    # regular
-    black   ="\033[0;30m"
-    red     ="\033[0;31m"
-    green   ="\033[0;32m"
-    yellow  ="\033[0;33m"
-    blue    ="\033[0;34m"
-    magenta ="\033[0;35m"
-    cyan    ="\033[0;36m"
-    white   ="\033[0;37m"
-    unknown ="\033[0;38m"
-    default ="\033[0;39m"
-    
-    # bold and brights
-    gray         ="\033[1;30m"
-    bold_red     ="\033[1;31m"
-    bold_green   ="\033[1;32m"
-    bold_yellow  ="\033[1;33m"
-    bold_blue    ="\033[1;34m"
-    bold_magenta ="\033[1;35m"
-    bold_cyan    ="\033[1;36m"
-    bold_white   ="\033[1;37m"
-    bold_unknown ="\033[1;38m"
-    bold_default ="\033[1;39m"
-    
-    # underline
-    under_black   ="\033[4;30m"
-    under_red     ="\033[4;31m"
-    under_green   ="\033[4;32m"
-    under_yellow  ="\033[4;33m"
-    under_blue    ="\033[4;34m"
-    under_magenta ="\033[4;35m"
-    under_cyan    ="\033[4;36m"
-    under_white   ="\033[4;37m"
-    under_unknown ="\033[4;38m"
-    under_default ="\033[4;39m"
-
-#####################
-### DEBUG FUNCTION ##
-#####################
-
-def debugFont():
-    print("Font.isRegular:"  + str(Font.isRegular))
-    print("Font.isBold:"  + str(Font.isBold))
-    print("Font.isItalic:"  + str(Font.isItalic))
-    print("Font.isUnderline:"  + str(Font.isUnderline))
-    print("Font.isBlink:"  + str(Font.isBlink))
-    print("Font.isInvert:"  + str(Font.isInvert))
-    print("Font.isline:"  + str(Font.isLine))
+class Settings:
+    current_font = ""
+    current_fg_color = ""
+    current_bg_color = ""
 
 #####################
 ### BASH FUNCTION ###
@@ -108,8 +59,6 @@ def clearScreen(realClean=False):
 
 def readKey():
     global process
-    # read key not use because illegal option
-    # process = os.popen('read -rsn1 key && if [[ $key == $(printf "\033") ]]; then read -rsn2 key; fi; echo $key')
     process = os.popen('bash ./read.sh')
     key = process.read()
 
@@ -149,90 +98,39 @@ def storeCursor():
 def restoreCursor():
     sys.stdout.write("\033[u")
 
-def setCurcorBlink(v):
+def setCursorBlink(v):
     if v:
         sys.stdout.write("\033[?25h")
     else:
         sys.stdout.write("\033[?25l")
 
-def setBlink():
-    Font.isBlink=True
-    Font.isRegular=False
-    Font.isBold=False
-    Font.isItalic=False
-    Font.isUnderline=False
-    sys.stdout.write(Tx.current)
+def setTerm():
+    fg_color = "\033[" + Settings.current_font + Settings.current_fg_color
+    sys.stdout.write(fg_color)
+    sys.stdout.write(Settings.current_bg_color)
 
-def setRegular():
-    Font.isRegular=True    
-    Font.isBold=False
-    Font.isBlink=False
-    Font.isItalic=False
-    Font.isUnderline=False
-    sys.stdout.write(Tx.current)
+def setFont(font):
+    Settings.current_font = font
+    setTerm()
 
-def setBold():
-    Font.isBold=True
-    Font.isBlink=False
-    Font.isItalic=False
-    Font.isRegular=False
-    Font.isUnderline=False
-    sys.stdout.write(Tx.current)
+def setBgColor(color):
+    Settings.current_bg_color = color
+    setTerm()
 
-def setItalic():
-    Font.isItalic=True
-    Font.isBlink=False
-    Font.isBold=False
-    Font.isRegular=False
-    Font.isUnderline=False
-    sys.stdout.write(Tx.current)
-    
-def setUnderline():
-    Font.isUnderline=True
-    Font.isBlink=False
-    Font.isRegular=False
-    Font.isBold=False
-    Font.isItalic=False
-    sys.stdout.write(Tx.current)
-  
-def setBgColor(c):
-    sys.stdout.write(c)
-    
-def setColor(c):
-    # old version
-    sys.stdout.write(c)
-    return
-    
-    # development
-    color=c
-    idx=color.find('[') + 1
-    
-    if Font.isRegular:
-        cmd="0"
-    elif Font.isBold:
-        cmd="1"
-    elif Font.isItalic:
-        cmd="3"
-    elif Font.isUnderline:
-        cmd="4"
-    elif Font.isBlink:
-        cmd="5"
-    elif Font.isInvert:
-        cmd="7"
-    elif Font.isLine:
-        cmd="9"
+def setColor(color):
+    #
+    # tty font color
+    # \033[ + font + color + m
+    # \033[0;30m
+    #
 
-    color = color[:idx] + cmd + color[idx+1:]
-    Tx.current=c
-    sys.stdout.write(color)
-    
-def setDefaultColor(c):
-    setColor(Bg.default)
-    setColor(Tx.default)
+    Settings.current_fg_color = color
+    setTerm()
+
+def setDefaultColor():
+    setColor(FgColor.default)
+    setBgColor(BgColor.default)
     setCursorBlink(True)
-    
-def defaultCursor():
-    sys.stdout.write(Tx.reset)
 
 
 #####################
@@ -255,7 +153,7 @@ def showMenu(menu, options, info, multiple=False, selected=[]):
     lastIndex=len(options)
     selection=[]
     clearScreen()
-    setCurcorBlink(False)
+    setCursorBlink(False)
 
     for o in options:
         if o in selected:
@@ -263,11 +161,11 @@ def showMenu(menu, options, info, multiple=False, selected=[]):
 
     while loop:
         moveCursor(0,3)
-        setColor(Tx.white)
-        setColor(BgColor.blue)
+        setColor(FgColor.white)
+        setBgColor(BgColor.blue)
         print("  "  + menu + "  ")
-        setColor(Tx.default)
-        setColor(BgColor.default)
+        setColor(FgColor.default)
+        setBgColor(BgColor.default)
         print("")
         
         if info != "":
@@ -277,20 +175,20 @@ def showMenu(menu, options, info, multiple=False, selected=[]):
         for idx, option in enumerate(options):
             sys.stdout.write(2 * " ")
             if currentIndex == idx:
-                setColor(Tx.invert)
+                setFont(Font.INVERT)
             else:
-                setColor(BgColor.default)
-                setColor(Tx.reset)
-                
+                setFont(Font.REGULAR)
+                setBgColor(BgColor.default)
+
             if option in selection:
-                setColor(Tx.cyan)
+                setColor(FgColor.cyan)
             
             print("{option}".format(option=option))
             
-            setColor(BgColor.default)
-            setColor(Tx.default)
-            setColor(Tx.reset)
-            
+            setFont(Font.REGULAR)
+            setColor(FgColor.default)
+            setBgColor(BgColor.default)
+
         key = readKey()
         
         if key == "up":
@@ -353,11 +251,17 @@ def showMainMenu():
 #####################
 
 def exitScript():
-    setCurcorBlink(True)
-    setColor(Tx.default)
+    setCursorBlink(True)
+    sys.stdout.write("\033[0m")
     sys.exit()
 
+def init():
+    setCursorBlink(False)
+    setFont(Font.REGULAR)
+    setColor(FgColor.cyan)
+
 def main():
+    init()
     while True:
         try:
             idx=showMainMenu()
@@ -370,8 +274,5 @@ def main():
         except KeyboardInterrupt:
             exitScript()
     
-main()
-
-
-
-
+if __name__ == "__main__":
+    main()
