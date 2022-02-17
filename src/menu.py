@@ -78,9 +78,8 @@ def readKey():
     global process
     process = os.popen('bash ./read.sh')
     key = process.read()
-
     if len(key) > 1:
-        key=key.strip()
+        key = key.strip()
 
     if key == '[A':
         val="up"
@@ -179,10 +178,10 @@ def showMenu(title, options, info='', multiple=False, selected=[]):
     while loop:
         moveCursor(0,3)
         setColor(FgColor.WHITE)
-        setBgColor(BgColor.blue)
+        setBgColor(BgColor.BLUE)
         print("  "  + title + "  ")
         setColor(FgColor.DEFAULT)
-        setBgColor(BgColor.default)
+        setBgColor(BgColor.DEFAULT)
         print("")
         
         if info != "":
@@ -195,7 +194,7 @@ def showMenu(title, options, info='', multiple=False, selected=[]):
                 setFont(Font.INVERT)
             else:
                 setFont(Font.REGULAR)
-                setBgColor(BgColor.default)
+                setBgColor(BgColor.DEFAULT)
 
             if option in selection:
                 setColor(FgColor.CYAN)
@@ -204,7 +203,7 @@ def showMenu(title, options, info='', multiple=False, selected=[]):
             
             setFont(Font.REGULAR)
             setColor(FgColor.DEFAULT)
-            setBgColor(BgColor.default)
+            setBgColor(BgColor.DEFAULT)
 
         key = readKey()
         
