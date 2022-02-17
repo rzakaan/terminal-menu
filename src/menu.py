@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import sys, os, subprocess
+import sys, os
 
 main_menu=["Main", "Settings", "Exit"]
 
@@ -13,30 +13,31 @@ class Font:
     INVERT    = '7'
     
 class FgColor:
-    BLACK   = ';30m'
-    RED     = ';31m'
-    GREEN   = ';32m'
-    YELLOW  = ';33m'
-    BLUE    = ';34m'
-    MAGENTA = ';35m'
-    CYAN    = ';36m'
-    WHITE   = ';37m'
-    UNKNOWN = ';38m'
-    DEFAULT = ';39m'
+    BLACK   = ";30m"
+    RED     = ";31m"
+    GREEN   = ";32m"
+    YELLOW  = ";33m"
+    BLUE    = ";34m"
+    MAGENTA = ";35m"
+    CYAN    = ";36m"
+    WHITE   = ";37m"
+    UNKNOWN = ";38m"
+    DEFAULT = ";39m"
 
 class BgColor:
-    BLACK   = '\033[40m'
-    RED     = '\033[41m'
-    GREEN   = '\033[42m'
-    YELLOW  = '\033[43m'
-    BLUE    = '\033[44m'
-    MAGENTA = '\033[45m'
-    CYAN    = '\033[46m'
-    WHITE   = '\033[47m'
-    UNKNOWN = '\033[48m'
-    DEFAULT = '\033[49m'
+    BLACK   = "\033[40m"
+    RED     = "\033[41m"
+    GREEN   = "\033[42m"
+    YELLOW  = "\033[43m"
+    BLUE    = "\033[44m"
+    MAGENTA = "\033[45m"
+    CYAN    = "\033[46m"
+    WHITE   = "\033[47m"
+    UNKNOWN = "\033[48m"
+    DEFAULT = "\033[49m"
 
 class Settings:
+    os_type = ""
     current_font = ""
     current_fg_color = ""
     current_bg_color = ""
@@ -44,6 +45,12 @@ class Settings:
 #--------------------
 # SHELL FUNCTIONS
 #--------------------
+
+def __windows_ansi():
+    # For windows, calling os.system("") 
+    # makes the ANSI escape sequence get processed correctly
+    if os.name == "nt":
+        os.system("color")
 
 def bash(command):
     '''
@@ -101,7 +108,8 @@ def readKey():
     return val
 
 def moveCursor(x, y):
-    sys.stdout.write("\033[" + str(x) + ";" + str(y) + "H")
+    __windows_ansi()
+    print("\033[%d;%dH" % (x, y))
     
 def getCursor():
     lines = os.popen('x=$(tput lines); echo $x').read()
@@ -206,7 +214,6 @@ def showMenu(title, options, info='', multiple=False, selected=[]):
             setBgColor(BgColor.DEFAULT)
 
         key = readKey()
-        
         if key == "up":
             if currentIndex == 0:
                 currentIndex = lastIndex - 1
@@ -257,16 +264,18 @@ def showMainMenu():
 #--------------------
 
 def exitScript():
+    __windows_ansi()
     setCursorBlink(True)
     sys.stdout.write("\033[0m")
     sys.exit()
 
 def init():
+    __windows_ansi()
     setCursorBlink(False)
     setFont(Font.REGULAR)
     setColor(FgColor.CYAN)
 
-def main():
+def main():    
     init()
     while True:
         try:
