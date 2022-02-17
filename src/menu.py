@@ -154,7 +154,7 @@ def setDefaultColor():
 # MENU FUNCTIONS
 #--------------------
 
-def showSettings(menu):
+def showSettings():
     cols, lines = getCursor()
     moveCursor(lines, 0)
     storeCursor()
@@ -164,7 +164,7 @@ def showSettings(menu):
     clearScreen()
     restoreCursor()
 
-def showMenu(menu, options, info='', multiple=False, selected=[]):
+def showMenu(title, options, info='', multiple=False, selected=[]):
     loop=True
     currentIndex=0
     lastIndex=len(options)
@@ -180,7 +180,7 @@ def showMenu(menu, options, info='', multiple=False, selected=[]):
         moveCursor(0,3)
         setColor(FgColor.WHITE)
         setBgColor(BgColor.blue)
-        print("  "  + menu + "  ")
+        print("  "  + title + "  ")
         setColor(FgColor.DEFAULT)
         setBgColor(BgColor.default)
         print("")
@@ -248,7 +248,7 @@ def showMenu(menu, options, info='', multiple=False, selected=[]):
                     selection.append(o)
         
         elif key == ":":
-            showSettings(menu)
+            showSettings(title)
 
 def showMainMenu():
     return showMenu('Main', main_menu)  
