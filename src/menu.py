@@ -1,10 +1,8 @@
+#!/usr/bin/python
+
 import sys, os, subprocess
 
-#####################
-##### VARIABLES #####
-#####################
-
-mainMenus=["Main", "Settings", "Exit"]
+main_menu=["Main", "Settings", "Exit"]
 
 class Font:
     REGULAR   = '0'
@@ -15,44 +13,63 @@ class Font:
     INVERT    = '7'
     
 class FgColor:
-    black   = ";30m"
-    red     = ";31m"
-    green   = ";32m"
-    yellow  = ";33m"
-    blue    = ";34m"
-    magenta = ";35m"
-    cyan    = ";36m"
-    white   = ";37m"
-    unknown = ";38m"
-    default = ";39m"
+    BLACK   = ';30m'
+    RED     = ';31m'
+    GREEN   = ';32m'
+    YELLOW  = ';33m'
+    BLUE    = ';34m'
+    MAGENTA = ';35m'
+    CYAN    = ';36m'
+    WHITE   = ';37m'
+    UNKNOWN = ';38m'
+    DEFAULT = ';39m'
 
 class BgColor:
-    black   ="\033[40m"
-    red     ="\033[41m"
-    green   ="\033[42m"
-    yellow  ="\033[43m"
-    blue    ="\033[44m"
-    magenta ="\033[45m"
-    cyan    ="\033[46m"
-    white   ="\033[47m"
-    unknown ="\033[48m"
-    default ="\033[49m"
-    reset   ="\033[49m"
+    BLACK   = '\033[40m'
+    RED     = '\033[41m'
+    GREEN   = '\033[42m'
+    YELLOW  = '\033[43m'
+    BLUE    = '\033[44m'
+    MAGENTA = '\033[45m'
+    CYAN    = '\033[46m'
+    WHITE   = '\033[47m'
+    UNKNOWN = '\033[48m'
+    DEFAULT = '\033[49m'
 
 class Settings:
     current_font = ""
     current_fg_color = ""
     current_bg_color = ""
 
-#####################
-### BASH FUNCTION ###
-#####################
+#--------------------
+# SHELL FUNCTIONS
+#--------------------
 
 def bash(command):
+    '''
+    Allows you to run the given command in shell.
+
+    Parameters
+    ----------
+    command : str
+        shell command
+        
+    Return
+    ------
+    stdout of shell command 
+    '''
     return os.popen(command).read().strip()    
 
-def clearScreen(realClean=False):
-    if realClean:
+def clearScreen(reset=False):
+    '''
+    Clear screen
+
+    Parameters
+    ----------
+    realClean : bool, optional
+        Reset all terminal settings to default.
+    '''
+    if reset:
         os.system("printf \033c")
     else:
         os.system("clear")
@@ -128,14 +145,14 @@ def setColor(color):
     setTerm()
 
 def setDefaultColor():
-    setColor(FgColor.default)
+    setColor(FgColor.DEFAULT)
     setBgColor(BgColor.default)
     setCursorBlink(True)
 
 
-#####################
-### MENU FUNCTION ###
-#####################
+#--------------------
+# MENU FUNCTIONS
+#--------------------
 
 def showSettings(menu):
     cols, lines = getCursor()
@@ -147,7 +164,7 @@ def showSettings(menu):
     clearScreen()
     restoreCursor()
 
-def showMenu(menu, options, info, multiple=False, selected=[]):
+def showMenu(menu, options, info='', multiple=False, selected=[]):
     loop=True
     currentIndex=0
     lastIndex=len(options)
@@ -161,10 +178,10 @@ def showMenu(menu, options, info, multiple=False, selected=[]):
 
     while loop:
         moveCursor(0,3)
-        setColor(FgColor.white)
+        setColor(FgColor.WHITE)
         setBgColor(BgColor.blue)
         print("  "  + menu + "  ")
-        setColor(FgColor.default)
+        setColor(FgColor.DEFAULT)
         setBgColor(BgColor.default)
         print("")
         
@@ -181,12 +198,12 @@ def showMenu(menu, options, info, multiple=False, selected=[]):
                 setBgColor(BgColor.default)
 
             if option in selection:
-                setColor(FgColor.cyan)
+                setColor(FgColor.CYAN)
             
             print("{option}".format(option=option))
             
             setFont(Font.REGULAR)
-            setColor(FgColor.default)
+            setColor(FgColor.DEFAULT)
             setBgColor(BgColor.default)
 
         key = readKey()
@@ -233,22 +250,12 @@ def showMenu(menu, options, info, multiple=False, selected=[]):
         elif key == ":":
             showSettings(menu)
 
-def showList(name, list, info="", multiple=False, selected=[]):
-    return showMenu(name, list, info, multiple, selected)
-    
 def showMainMenu():
-    return showList("Main", mainMenus)
-
-
-#####################
-### CORE FUNCTION ###
-#####################
-
-
-        
-#####################
-### MAIN FUNCTION ###
-#####################
+    return showMenu('Main', main_menu)  
+      
+#--------------------
+# MAIN FUNCTION
+#--------------------
 
 def exitScript():
     setCursorBlink(True)
@@ -258,7 +265,7 @@ def exitScript():
 def init():
     setCursorBlink(False)
     setFont(Font.REGULAR)
-    setColor(FgColor.cyan)
+    setColor(FgColor.CYAN)
 
 def main():
     init()
