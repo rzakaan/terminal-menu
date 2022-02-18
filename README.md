@@ -38,12 +38,19 @@ print("Hello World")
 ### Show Menu List
 Writes the given list to the screen in the form of a menu and returns the selected item
 
-Parameters
-- title : <a>str</a> - The menu title that will be written to the screen
-- options : <a>list [str]</a> - The menu options that will be written to the screen
-- info : <a>str</a> - The digest information of menu that will be written to the screen afte menu title
-- multiple : <a>bool</a> - Multiple choices
-- selected : <a>list [str]</a> - To show the pre-selected ones 
+ Parameters
+| Params  | Type  | Description  |
+|:- |:- |:- |
+| title   | <a>str</a> | The menu title that will be written to the screen  |
+| options | <a>list [str]</a> | The menu options that will be written to the screen
+| info | <a>str</a> | The digest information of menu that will be written to the screen afte menu title
+| multiple | <a>bool</a> | Multiple choices
+| selected | <a>list [str]</a> | To show the pre-selected ones 
+
+Return
+- if multi selection is enabled then return list
+- else return selection value
+
 ```py
 showMenu(title, options, info, multiple=False, selected=[]):
 
