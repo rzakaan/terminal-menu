@@ -1,8 +1,12 @@
 #!/usr/bin/python
 
 import sys, os
+import subprocess
 
-main_menu=["Main", "Settings", "Exit"]
+class CMD:
+    READ = 'read -rsn 1 key && if [[ $key == $(printf "\033") ]]; then read -rsn 2 key; fi; echo $key'
+    CUR_LINE = 'x=$(tput lines); echo $x'
+    CUR_COLS = 'x=$(tput cols); echo $x'
 
 class Font:
     REGULAR   = '0'
@@ -52,7 +56,7 @@ def __windows_ansi():
     if os.name == "nt":
         os.system("color")
 
-def bash(command):
+def bash(command, output=False):
     '''
     Allows you to run the given command in shell.
 
@@ -65,7 +69,19 @@ def bash(command):
     ------
     stdout of shell command 
     '''
-    return os.popen(command).read().strip()    
+    if output:
+        res = ""
+        try:
+            with subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=1, universal_newlines=True, shell=True) as p:
+                for line in p.stdout:
+                    res += line
+                    print(line, end='')            
+        except subprocess.CalledProcessError:
+            print("subprocess error !")
+        
+        return res
+    else:
+        return os.popen(command).read().strip()    
 
 def clearScreen(reset=False):
     '''
@@ -81,10 +97,17 @@ def clearScreen(reset=False):
     else:
         os.system("clear")
 
-def readKey():
+'''
+    Enter key reading recommendation on macos
     global process
-    process = os.popen('bash ./read.sh')
+    process = os.popen('bash ../src/read.sh')
     key = process.read()
+
+    or just press right arrow >
+'''
+def readKey():
+    key = bash(CMD.READ)
+
     if len(key) > 1:
         key = key.strip()
 
@@ -112,8 +135,8 @@ def moveCursor(x, y):
     print("\033[%d;%dH" % (x, y))
     
 def getCursor():
-    lines = os.popen('x=$(tput lines); echo $x').read()
-    cols =  os.popen('x=$(tput cols); echo $x').read()
+    lines = os.popen(CMD.CUR_LINE).read()
+    cols =  os.popen(CMD.CUR_COLS).read()
     return cols, lines
     
 def storeCursor():
@@ -161,9 +184,9 @@ def setDefaultColor():
 # MENU FUNCTIONS
 #--------------------
 
-def showSettings():
+def showSettings(title):
     cols, lines = getCursor()
-    moveCursor(lines, 0)
+    moveCursor(int(lines), 0)
     storeCursor()
     val = input(":")
     if val == "set":
@@ -238,7 +261,7 @@ def showMenu(title, options, info='', multiple=False, selected=[]):
         elif key == "end":
             currentIndex = lastIndex -1
                         
-        elif key == "s" or key == "x" and multiple:
+        elif (key == "s" or key == "x") and multiple:
             if options[currentIndex] not in selection:
                 selection.append(options[currentIndex])
             else:
@@ -255,9 +278,6 @@ def showMenu(title, options, info='', multiple=False, selected=[]):
         
         elif key == ":":
             showSettings(title)
-
-def showMainMenu():
-    return showMenu('Main', main_menu)  
       
 #--------------------
 # MAIN FUNCTION
@@ -274,20 +294,3 @@ def init():
     setCursorBlink(False)
     setFont(Font.REGULAR)
     setColor(FgColor.CYAN)
-
-def main():    
-    init()
-    while True:
-        try:
-            idx=showMainMenu()
-            if idx == "Main":
-                pass
-            elif idx == "Settings":
-                pass
-            elif idx == "Exit":
-                exitScript()
-        except KeyboardInterrupt:
-            exitScript()
-    
-if __name__ == "__main__":
-    main()
