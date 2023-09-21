@@ -20,12 +20,12 @@ def main():
             idx=showMainMenu()
             if idx == "List":
                 term.clearScreen()
-                term.bash("ls .", output=True)
+                term.shell("ls .", output=True)
                 waitKey()
 
             elif idx == "Ping":
                 term.clearScreen()
-                term.bash("ping localhost -c 4", output=True)
+                term.shell("ping localhost -c 4", output=True)
                 waitKey()
 
             elif idx == "Exit":

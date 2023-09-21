@@ -56,7 +56,7 @@ def __windows_ansi():
     if os.name == "nt":
         os.system("color")
 
-def bash(command, output=False):
+def shell(command, output=False):
     '''
     Allows you to run the given command in shell.
 
@@ -100,13 +100,13 @@ def clearScreen(reset=False):
 '''
     Enter key reading recommendation on macos
     global process
-    process = os.popen('bash ../src/read.sh')
+    process = os.popen('sh ../src/read.sh')
     key = process.read()
 
     or just press right arrow >
 '''
 def readKey():
-    key = bash(CMD.READ)
+    key = shell(CMD.READ)
 
     if len(key) > 1:
         key = key.strip()
