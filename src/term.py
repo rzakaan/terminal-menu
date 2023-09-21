@@ -3,6 +3,7 @@
 import sys, os
 import subprocess
 
+VARS = {}
 class CMD:
     READ = 'read -rsn 1 key && if [[ $key == $(printf "\033") ]]; then read -rsn 2 key; fi; echo $key'
     CUR_LINE = 'x=$(tput lines); echo $x'
@@ -184,15 +185,41 @@ def setDefaultColor():
 # MENU FUNCTIONS
 #--------------------
 
+def setVariable(param):
+    idx = param.find('=')
+    if not idx > 0:
+        print("error set variable ")
+    
+    name = param[0 : idx].strip()
+    value = param[idx + 1: len(param)].strip()
+    VARS[name] = value
+
+def getVariable(name):
+    if name in VARS:
+        return VARS[name]
+    else:
+        return ""
+
 def showSettings(title):
+    storeCursor()
     cols, lines = getCursor()
     moveCursor(int(lines), 0)
-    storeCursor()
-    val = input(":")
-    if val == "set":
-        pass
+    string = input(":")
+    i = string.find(' ')
+    command = string[:i].lower()
+    param = string[i + 1 : len(string)].strip()
+
+    match command:
+        case "set":
+            setVariable(param)
+            clearScreen()
+        case "get":
+            v = getVariable(param)
+            moveCursor(int(lines) -1, 0)
+            print(v)
+            readKey()
+    
     clearScreen()
-    restoreCursor()
 
 def showMenu(title, options, info='', multiple=False, selected=[]):
     loop=True
